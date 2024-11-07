@@ -1,0 +1,31 @@
+library(dplyr)
+library(ggplot2)
+library(ggalluvial)
+
+# Define the function
+plot_alluvium <- function(data, grouping_vars, fill_color = "yellow", stratum_color = "black",
+                          x_labels = NULL, title = "Alluvial Diagram", x_title = "Categories",
+                          y_title = "Frequency") {
+  
+  # Ensure the grouping variables are part of the data
+  if (!all(grouping_vars %in% names(data))) {
+    stop("One or more grouping variables are not in the data.")
+  }
+  
+  # Group the data and summarize frequency
+  data_freq <- data |> 
+    group_by(across(all_of(grouping_vars))) |> 
+    summarize(Freq = n(), .groups = "drop") |> 
+    ungroup()
+  
+  # Create the plot
+  plot <- ggplot(data = data_freq, aes(y = Freq, fill = fill_color)) +
+    geom_alluvium(aes_string(axis1 = grouping_vars[1], axis2 = grouping_vars[2], axis3 = grouping_vars[3]), color = stratum_color) +
+    geom_stratum() +
+    geom_text(stat = "stratum", aes(label = after_stat(stratum))) +
+    scale_x_discrete(limits = x_labels, expand = c(.1, .1)) +
+    labs(title = title, x = x_title, y = y_title) +
+    theme_minimal()
+  
+  return(plot)
+}

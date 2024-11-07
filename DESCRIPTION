@@ -1,0 +1,12 @@
+Package: easyalluvium
+Title: A Package for Alluvial Plotting
+Version: 0.1.0
+Authors@R: c(person("Yu-Heng", "Chi", email = "yc4548@columbia.edu", role = c("aut", "cre")))
+Description: This package provides tools for creating flexible alluvial plots.
+License: MIT
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.1
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
