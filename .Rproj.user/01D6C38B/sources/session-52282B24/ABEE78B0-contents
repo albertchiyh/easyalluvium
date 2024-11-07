@@ -3,7 +3,7 @@ library("easyalluvium")
 
 dt <- read.csv("/Users/albertchi/Documents/Columbia/EDAV/essay_grades.csv")
 
-plot_b(data = dt,
+plot_alluvium(data = dt,
   grouping_vars = c("essay1", "essay2"),
   fill_color = "yellow",
   stratum_color = "black",

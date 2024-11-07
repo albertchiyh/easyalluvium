@@ -34,8 +34,8 @@
 #'
 #' @export
 plot_alluvium <- function(data, grouping_vars, fill_color = "yellow", stratum_color = "black",
-                          x_labels = NULL, title = "Alluvial Diagram", x_title = "Categories",
-                          y_title = "Frequency") {
+                                           x_labels = NULL, title = "Alluvial Diagram", x_title = "Categories",
+                                           y_title = "Frequency") {
   # Ensure the grouping variables are part of the data
   if (!all(grouping_vars %in% names(data))) {
     stop("One or more grouping variables are not in the data.")
@@ -47,20 +47,17 @@ plot_alluvium <- function(data, grouping_vars, fill_color = "yellow", stratum_co
     summarize(Freq = n(), .groups = "drop") |>
     ungroup()
 
-  # Create mapping for alluvial axes
-  axis_mapping <- aes()
+  # Dynamically create axis mappings
+  axis_mappings <- list()
   for (i in seq_along(grouping_vars)) {
-    axis_name <- paste0("axis", i)
-    axis_mapping[[axis_name]] <- as.name(grouping_vars[i])
+    axis_mappings[[paste0("axis", i)]] <- sym(grouping_vars[i])
   }
 
   # Create the plot
-  plot <- ggplot(data = data_freq) +
-    geom_alluvium(mapping = modifyList(axis_mapping, aes(y = Freq)),
-                  color = stratum_color, fill = fill_color) +
-    geom_stratum(mapping = modifyList(axis_mapping, aes(y = Freq))) +
-    geom_text(stat = "stratum",
-              mapping = modifyList(axis_mapping, aes(y = Freq, label = after_stat(stratum)))) +
+  plot <- ggplot(data = data_freq, aes(y = Freq)) +
+    geom_alluvium(aes(!!!axis_mappings), color = stratum_color, fill = fill_color) +
+    geom_stratum(aes(!!!axis_mappings)) +
+    geom_text(stat = "stratum", aes(!!!axis_mappings, label = after_stat(stratum))) +
     scale_x_discrete(limits = if (is.null(x_labels)) grouping_vars else x_labels, expand = c(.1, .1)) +
     labs(title = title, x = x_title, y = y_title) +
     theme_minimal()
