@@ -1,44 +1,9 @@
-library(ggplot2)
-library(ggalluvial)
-library(dplyr)
-
-plot_a <- function(data, grouping_vars, fill_color = "yellow", stratum_color = "black",
-                          x_labels = NULL, title = "Alluvial Diagram", x_title = "Categories",
-                          y_title = "Frequency") {
-  # Ensure the grouping variables are part of the data
-  if (!all(grouping_vars %in% names(data))) {
-    stop("One or more grouping variables are not in the data.")
-  }
-  
-  # Group the data and summarize frequency
-  data_freq <- data |>
-    group_by(across(all_of(grouping_vars))) |>
-    summarize(Freq = n(), .groups = "drop") |>
-    ungroup()
-  
-  # Dynamically create axis mappings
-  axis_mappings <- list()
-  for (i in seq_along(grouping_vars)) {
-    axis_mappings[[paste0("axis", i)]] <- sym(grouping_vars[i])
-  }
-  
-  # Create the plot
-  plot <- ggplot(data = data_freq, aes(y = Freq)) +
-    geom_alluvium(aes(!!!axis_mappings), color = stratum_color, fill = fill_color) +
-    geom_stratum(aes(!!!axis_mappings)) +
-    geom_text(stat = "stratum", aes(!!!axis_mappings, label = after_stat(stratum))) +
-    scale_x_discrete(limits = if (is.null(x_labels)) grouping_vars else x_labels, expand = c(.1, .1)) +
-    labs(title = title, x = x_title, y = y_title) +
-    theme_minimal()
-  
-  return(plot)
-}
-
+library("easyalluvium")
 
 
 dt <- read.csv("/Users/albertchi/Documents/Columbia/EDAV/essay_grades.csv")
 
-plot_a(data = dt,
+plot_b(data = dt,
   grouping_vars = c("essay1", "essay2"),
   fill_color = "yellow",
   stratum_color = "black",
