@@ -1,0 +1,12 @@
+library("easyalluvium")
+
+dt <- read.csv("/Users/albertchi/Documents/Columbia/EDAV/essay_grades.csv")
+
+plot_alluvium(data = dt,
+  grouping_vars = c("essay1", "essay2", "essay3"),
+  fill_color = "yellow",
+  stratum_color = "black",
+  x_labels = c("Essay 1", "Essay 2", "Essay 3"),
+  title = "Alluvial Diagram of Student Performance on Essays",
+  x_title = "Essays",
+  y_title = "Number of Students")

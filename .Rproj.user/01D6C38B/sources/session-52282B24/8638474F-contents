@@ -1,4 +1,4 @@
-#' Plot Alluvial Diagram
+#' Plot Alluvium Diagram
 #'
 #' This function creates an alluvial plot using specified grouping variables, allowing
 #' for flexible color filling based on either a static color or a column in the dataset.
@@ -21,8 +21,8 @@
 #'
 #' @examples
 #' \dontrun{
-#'   dt <- read.csv("/path/to/essay_grades.csv")
-#'   plot_alluvium(data = dt,
+#'   dt_5 <- read.csv("essay_grades.csv")
+#'   plot_alluvium(data = dt_5,
 #'                 grouping_vars = c("essay1", "essay2", "essay3"),
 #'                 fill_color = "yellow",
 #'                 stratum_color = "black",
@@ -37,26 +37,31 @@ plot_alluvium <- function(data, grouping_vars, fill_color = "yellow", stratum_co
                           x_labels = NULL, title = "Alluvial Diagram", x_title = "Categories",
                           y_title = "Frequency") {
 
-  # Ensure the grouping variables are part of the data
+  # Check if all grouping variables are present in the data
   if (!all(grouping_vars %in% names(data))) {
     stop("One or more grouping variables are not in the data.")
   }
 
-  # Group the data and summarize frequency
+  # Group data and summarize frequency
   data_freq <- data |>
     group_by(across(all_of(grouping_vars))) |>
     summarize(Freq = n(), .groups = "drop") |>
     ungroup()
 
   # Dynamically map axes based on the number of grouping variables
-  aes_mapping <- aes(y = Freq)
-  for (i in seq_along(grouping_vars)) {
-    aes_mapping <- modifyList(aes_mapping, aes_string(paste0("axis", i) = grouping_vars[i]))
+  axis_mapping <- setNames(paste0("axis", seq_along(grouping_vars)), grouping_vars)
+
+  # Determine fill aesthetic based on whether fill_color is a column or a static color
+  if (fill_color %in% names(data_freq)) {
+    fill_aes <- aes_string(fill = fill_color)
+  } else {
+    fill_aes <- aes(fill = I(fill_color))
   }
 
   # Create the plot
   plot <- ggplot(data = data_freq, aes(y = Freq)) +
-    geom_alluvium(aes(!!!aes_mapping), color = stratum_color, fill = fill_color) +
+    geom_alluvium(aes_string(!!!axis_mapping), color = stratum_color) +
+    fill_aes +
     geom_stratum() +
     geom_text(stat = "stratum", aes(label = after_stat(stratum))) +
     scale_x_discrete(limits = if (is.null(x_labels)) grouping_vars else x_labels, expand = c(.1, .1)) +
